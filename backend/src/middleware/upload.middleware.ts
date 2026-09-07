@@ -1,9 +1,17 @@
-import multer from "multer";
+import fs from "node:fs";
 import path from "node:path";
+
+import multer from "multer";
+
+const pdfUploadDirectory = path.resolve("uploads", "pdfs");
+const projectUploadDirectory = path.resolve("uploads", "projects");
+
+fs.mkdirSync(pdfUploadDirectory, { recursive: true });
+fs.mkdirSync(projectUploadDirectory, { recursive: true });
 
 const storage = multer.diskStorage({
   destination: (_req, _file, callback) => {
-    callback(null, "uploads/pdfs");
+    callback(null, pdfUploadDirectory);
   },
 
   filename: (_req, _file, callback) => {
@@ -11,13 +19,18 @@ const storage = multer.diskStorage({
   },
 });
 
-const fileFilter: multer.Options["fileFilter"] = (_req, file, callback) => {
+const fileFilter: multer.Options["fileFilter"] = (
+  _req,
+  file,
+  callback,
+) => {
   const extension = path.extname(file.originalname).toLowerCase();
 
   const isPdfMimeType = file.mimetype === "application/pdf";
 
   const isPdfOctetStream =
-    file.mimetype === "application/octet-stream" && extension === ".pdf";
+    file.mimetype === "application/octet-stream" &&
+    extension === ".pdf";
 
   if (isPdfMimeType || isPdfOctetStream) {
     callback(null, true);
@@ -29,7 +42,7 @@ const fileFilter: multer.Options["fileFilter"] = (_req, file, callback) => {
 
 const projectImageStorage = multer.diskStorage({
   destination: (_req, _file, callback) => {
-    callback(null, "uploads/projects");
+    callback(null, projectUploadDirectory);
   },
 
   filename: (_req, file, callback) => {
@@ -56,14 +69,17 @@ const imageFileFilter: multer.Options["fileFilter"] = (
   const isAllowedMimeType = allowedMimeTypes.includes(file.mimetype);
 
   const isSvgOctetStream =
-    file.mimetype === "application/octet-stream" && extension === ".svg";
+    file.mimetype === "application/octet-stream" &&
+    extension === ".svg";
 
   if (isAllowedMimeType || isSvgOctetStream) {
     callback(null, true);
     return;
   }
 
-  callback(new Error("Only JPG, PNG, WebP, and SVG images are allowed."));
+  callback(
+    new Error("Only JPG, PNG, WebP, and SVG images are allowed."),
+  );
 };
 
 const uploadPdf = multer({
