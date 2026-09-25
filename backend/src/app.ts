@@ -7,8 +7,17 @@ import technologyRoutes from "./routes/technology.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
 import cookieParser from "cookie-parser";
 import path from "path";
+import helmet from "helmet";
 
 const app = express();
+
+app.use(
+  helmet({
+    crossOriginResourcePolicy: {
+      policy: "cross-origin",
+    },
+  }),
+);
 
 app.use(express.json());
 app.use(cookieParser());

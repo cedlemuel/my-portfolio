@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
 import Card from "@/components/Card";
+import ProjectCardSkeleton from "@/components/ProjectCardSkeleton";
 import { getProjects } from "@/services/project.service";
 
-import type {
-  CardTypes,
-  Project,
-} from "@/types";
+import type { CardTypes, Project } from "@/types";
 
 const SERVER_URL = import.meta.env.VITE_SERVER_URL;
+const SKELETON_COUNT = 6;
 
 const Projects = () => {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -38,10 +37,7 @@ const Projects = () => {
     description: project.description,
     liveLink: project.live_link ?? undefined,
     githubLink: project.github_link ?? undefined,
-
-    techStack: project.techStack.map(
-      (technology) => technology.name,
-    ),
+    techStack: project.techStack.map((technology) => technology.name),
   }));
 
   return (
@@ -58,35 +54,30 @@ const Projects = () => {
       </div>
 
       {isLoading && (
-        <p className="text-white/60 font-mono px-8 xl:px-24 mt-8">
-          Loading projects...
-        </p>
+        <div className="grid auto-rows-fr gap-4 w-full pb-8 mt-8 px-4 xl:px-24 grid-cols-[repeat(auto-fill,384px)]">
+          {Array.from({ length: SKELETON_COUNT }).map((_, i) => (
+            <ProjectCardSkeleton key={i} />
+          ))}
+        </div>
       )}
 
       {error && (
-        <p className="text-red-400 font-mono px-8 xl:px-24 mt-8">
-          {error}
-        </p>
+        <p className="text-red-400 font-mono px-8 xl:px-24 mt-8">{error}</p>
       )}
 
       {!isLoading && !error && (
         <div className="grid auto-rows-fr gap-4 w-full pb-8 mt-8 px-4 xl:px-24 grid-cols-[repeat(auto-fill,384px)]">
           {cards.map((card) => (
-            <Card
-              key={card.title}
-              {...card}
-            />
+            <Card key={card.title} {...card} />
           ))}
         </div>
       )}
 
-      {!isLoading &&
-        !error &&
-        cards.length === 0 && (
-          <p className="text-white/40 font-mono px-8 xl:px-24 mt-8">
-            No projects available.
-          </p>
-        )}
+      {!isLoading && !error && cards.length === 0 && (
+        <p className="text-white/40 font-mono px-8 xl:px-24 mt-8">
+          No projects available.
+        </p>
+      )}
     </div>
   );
 };

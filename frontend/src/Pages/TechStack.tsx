@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import TechCard from "@/components/TechCard";
+import TechCardSkeleton from "../components/TechCardSkeleton";
 import { getTechnologies } from "../services/technology.service";
 import type { Technology } from "@/types";
+
+const SKELETON_COUNT = 16;
 
 const TechStack = () => {
   const [techs, setTechs] = useState<Technology[]>([]);
@@ -40,15 +43,15 @@ const TechStack = () => {
       </div>
 
       {isLoading && (
-        <p className="text-white/60 font-mono px-8 xl:px-24 mt-8">
-          Loading technologies...
-        </p>
+        <div className="grid w-full gap-4 grid-cols-[repeat(auto-fill,160px)] pb-8 mt-8 px-4 xl:px-24">
+          {Array.from({ length: SKELETON_COUNT }).map((_, i) => (
+            <TechCardSkeleton key={i} />
+          ))}
+        </div>
       )}
 
       {error && (
-        <p className="text-red-400 font-mono px-8 xl:px-24 mt-8">
-          {error}
-        </p>
+        <p className="text-red-400 font-mono px-8 xl:px-24 mt-8">{error}</p>
       )}
 
       {!isLoading && !error && (
@@ -62,6 +65,12 @@ const TechStack = () => {
             />
           ))}
         </div>
+      )}
+
+      {!isLoading && !error && techs.length === 0 && (
+        <p className="text-white/40 font-mono px-8 xl:px-24 mt-8">
+          No technologies available.
+        </p>
       )}
     </div>
   );
